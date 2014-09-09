@@ -45,7 +45,21 @@ var Bug = function (){ //constructor function creates an object
 		ctx.fill();
 		return this; //returns object after drawing is complete (not the best practice but very good for waterfall use)
 	}
+	this.move = function(ctx){
+	// move the bug to its position for the next frame
+		this.x += Math.ceil(Math.random() * 2);
+        this.y += Math.ceil(Math.random() / 2);
 
+  //       // change direction in X if it 'hits' the border
+  //   	if ((this.x + this.radius * 2) >= canvas.width || this.x <= 0) {
+  //   	this.x *= 1;
+  //   	}
+ 
+		// // change direction in Y if it 'hits' the border
+		// if ((this.y + this.radius * 2) >= canvas.height || this.x <= 0) {
+		//  this.y *= 1;
+		// }
+ 	}
 	//possible functions that would be good for waterfall syntax
 	// this.speak = function() { 
 	// 	console.log("HELLO, I can be found at (" + this.x + ", " + this.y + ")"); 
@@ -72,14 +86,15 @@ function drawAll(ctx){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
 	drawBoard(50,50,ctx);
 	drawPerson(person.x,person.y,ctx);
-	bugs.map( //map another objects method to this array
-		function(bug) { 
-			bugs[0].draw.apply(bug,[ctx]);//apply the .draw function from bug (take in its ctx arg) to the array
-		})
-	//quicker way is probably a loop but the above is interesting^
-	//for (var i = 0; i < bugs.length; i++){
-	// 	bugs[i].draw(ctx);
-	//}
+	// bugs.map( //map another objects method to this array
+	// 	function(bug) { 
+	// 		bugs[0].draw.apply(bug,[ctx]);//apply the .draw function from bug (take in its ctx arg) to the array
+	// 	})
+	//quicker way is probably a loop
+	for (var i = 0; i < bugs.length; i++){
+		bugs[i].move(ctx);
+		bugs[i].draw(ctx);
+	}
 }
 
 function drawBoard(w,h,ctx){
@@ -113,20 +128,6 @@ function drawPerson(x,y,ctx){
 // 	this.id = bugIndex;
 // }
 
-function moveBugs(ctx){
-	// bugs[i].position.x = bugs[i].position.x + 5; //two ways to
-	// b.position.x += 5; //change the position of x by 5 (if we had a position.x property)
-}
-
-function clearBug(x,y,radius){
-	for (var i=0; i < bugs.length; i++)
-		ctx.beginPath();
-    	ctx.arc(bugs[i].x, bugs[i].y, bugs[i].radius, 0, 2 * Math.PI, false);
-    	ctx.clip();
-    	ctx.clearRect(bugs[i].x - bugs[i].radius - 1, bugs[i].y - bugs[i].radius - 1,
-                      bugs[i].radius * 2 + 2, bugs[i].radius * 2 + 2);
-}
-
 function detectCollision(ctx){
 	//person & bugs
 	for (var i=0; i < bugs.length; i++){
@@ -136,11 +137,12 @@ function detectCollision(ctx){
 
 		if (distance < person.radius + bugs[i].radius) {
 	    	console.log('collision detected!');
-
-	    	clearBug(bugs[i].x,bugs[i].y,bugs[i].radius);
-
+	    	//clear the bug that was hit, all bugs are cleared every time we move (clearing canvas)
+	    	//to ensure the hit bug is not redraw, remove it from the array
+	    	bugs.splice(i,1); //mutates an array vs .slice(a,b) which is used for grabbing a reference
+	    	//add to the score
 	    	score+=1;
-	    	console.log(score);
+	    	console.log('your score is: ' +score);
 
 		}
 	}
@@ -161,7 +163,7 @@ function movePerson(e) {
 	if (e.keyCode == 40) {
 		person.y += SPEED;
 	}
-	//moveBugs(ctx);
+
 	drawAll(ctx);
 	detectCollision(ctx);
 }
@@ -173,4 +175,6 @@ createBugs();
 drawAll(ctx);
 
 
-//clearbug issue, add score, move bugs, show score
+//move bugs, show score
+//overlaying bugs issue
+//timer?
