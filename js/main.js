@@ -20,10 +20,6 @@ var NUM_OF_BUGS = 10;
 var score = 0;
 var bugIndex = 0;
 
-var vx = 10,
-	vy = 10,
-	gravity = 1;
-
 var person = {
 	x : POSX,
 	y : POSY,
@@ -34,9 +30,11 @@ var bugs = []
 var Bug = function (){ //constructor function creates an object
 	this.x = Math.ceil(Math.random()*canvas.width / Math.ceil(Math.random())), //property
 	this.y = Math.ceil(Math.random()*canvas.height / Math.ceil(Math.random())), //property
-	this.radius = PIECE_RADIUS, //property
+	this.radius = PIECE_RADIUS/2, //property
 	this.color = "#f4a466",	//property
-	this.speed = 4;
+	this.xVelocity = Math.ceil(Math.random()), //property
+	this.yVelocity = Math.ceil(Math.random()), //property
+	this.speed = 4; //property
 	this.draw = function(ctx) { //method of the Bug object
 		ctx.beginPath();
 		ctx.fillStyle = this.color;
@@ -47,18 +45,18 @@ var Bug = function (){ //constructor function creates an object
 	}
 	this.move = function(ctx){
 	// move the bug to its position for the next frame
-		this.x += Math.ceil(Math.random() * 2);
-        this.y += Math.ceil(Math.random() / 2);
+		this.x = this.x + this.xVelocity;
+        this.y = this.y + this.yVelocity;
 
-  //       // change direction in X if it 'hits' the border
-  //   	if ((this.x + this.radius * 2) >= canvas.width || this.x <= 0) {
-  //   	this.x *= 1;
-  //   	}
+        // change direction in X if it 'hits' the border
+    	if ((this.x + this.radius * 2) >= canvas.width || this.x <= 0) {
+    	this.x -= 10;
+    	}
  
-		// // change direction in Y if it 'hits' the border
-		// if ((this.y + this.radius * 2) >= canvas.height || this.x <= 0) {
-		//  this.y *= 1;
-		// }
+		// change direction in Y if it 'hits' the border
+		if ((this.y + this.radius * 2) >= canvas.height || this.x <= 0) {
+		 this.y -= 10;
+		}
  	}
 	//possible functions that would be good for waterfall syntax
 	// this.speak = function() { 
@@ -141,6 +139,7 @@ function detectCollision(ctx){
 	    	//to ensure the hit bug is not redraw, remove it from the array
 	    	bugs.splice(i,1); //mutates an array vs .slice(a,b) which is used for grabbing a reference
 	    	//add to the score
+	    	person.radius +=2;
 	    	score+=1;
 	    	console.log('your score is: ' +score);
 
@@ -163,6 +162,11 @@ function movePerson(e) {
 	if (e.keyCode == 40) {
 		person.y += SPEED;
 	}
+	
+	if (person.x + person.radius > canvas.width) {
+    person.x = canvas.width - person.radius * 2;
+
+}
 
 	drawAll(ctx);
 	detectCollision(ctx);
